@@ -29,7 +29,7 @@ public class PhoneDataServiceImpl implements PhoneDataService{
             "4g", "bluetooth", "gps", "sim", "wifi", "os", "ram_amount", "ram_unit", "proc", "strg_amount", "strg_unit" };
 
     @Override
-    public HashMap<String, String> query(PhoneData phoneData) throws DatabaseConnectionFailedException {
+    public List<HashMap<String, String>> query(PhoneData phoneData) throws DatabaseConnectionFailedException {
         String query = generateQuery(phoneData);
         return callQuery(query);
     }
@@ -92,19 +92,23 @@ public class PhoneDataServiceImpl implements PhoneDataService{
         return ret;
     }
 
-    private static HashMap<String, String> callQuery(String q) throws DatabaseConnectionFailedException {
+    private static List<HashMap<String, String>> callQuery(String q) throws DatabaseConnectionFailedException {
 
-        HashMap<String, String> returnValue = new HashMap<>();
-
-        for (String key : keys) {
-            returnValue.put(key, null);
-        }
+        List<HashMap<String, String>> queryResult = new LinkedList<>();
 
         try (RDFConnection conn = RDFConnection.connect(serviceURL)) {
             conn.querySelect(
                     q,
                     (qs) -> {
+                        // Create hashmap for phone data
+                        HashMap<String, String> phoneData = new HashMap<>();
                         for (String key : keys) {
+                            phoneData.put(key, null);
+                        }
+
+                        // Fill values
+                        for (String key : keys) {
+                            // Get RDF Node
                             RDFNode rdfNode = qs.get(key);
 
                             String value;
@@ -114,14 +118,17 @@ public class PhoneDataServiceImpl implements PhoneDataService{
                             else {
                                 value = rdfNode.toString();
                             }
-                            returnValue.put(key, value);
+                            phoneData.put(key, value);
                         }
+
+                        // Put phone data into queryResult
+                        queryResult.add(phoneData);
                     });
         }
         catch (Exception e) {
             throw new DatabaseConnectionFailedException("Failed to connect to database");
         }
-        return returnValue;
+        return queryResult;
     }
 
     // FILTER (?3g = "No"^^xsdasm:boolean)

@@ -30,7 +30,7 @@ public class MainController {
     }
 
     @GetMapping(value="/query")
-    ResponseEntity<HashMap<String, String>> query(@RequestBody PhoneDataDTO phoneDataDTO) {
+    ResponseEntity<List<HashMap<String, String>>> query(@RequestBody PhoneDataDTO phoneDataDTO) {
         PhoneData phoneData = modelMapper.map(phoneDataDTO, PhoneData.class);
         try {
             return new ResponseEntity<>(phoneDataService.query(phoneData), HttpStatus.OK);

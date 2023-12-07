@@ -6,6 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface PhoneDataService {
-    public HashMap<String, String> query(PhoneData phoneData) throws DatabaseConnectionFailedException;
+    public List<HashMap<String, String>> query(PhoneData phoneData) throws DatabaseConnectionFailedException;
     public List<String> getNamesList(int pageNumber) throws  DatabaseConnectionFailedException;
 }
