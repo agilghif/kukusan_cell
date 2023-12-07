@@ -2,7 +2,6 @@ package com.example.semwebProject.Service;
 
 import java.util.HashMap;
 
-import com.example.semwebProject.Model.PhoneDataDTO;
 import com.example.semwebProject.Model.PhoneData;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdfconnection.RDFConnection;
@@ -10,57 +9,55 @@ import org.apache.jena.rdfconnection.RDFConnection;
 import org.springframework.stereotype.Service;
 
 /*
- * Note untuk Datatype Boolean :
- * Krn dataset kita booleannya "No" ama "Yes" ngeceknya perlu kyk gini :
- * -- FILTER (?3g = "No"^^xsd:boolean) [Kalau mau filter "No"]
- * -- FILTER (?3g = "Yes"^^xsd:boolean) [Kalau mau filter "Yes"]
+ * Note untuk Datatype Boolean asm:
+ * Krn dataset kita booleannya "No" ama "Yes" ngeceknya perlu kyk gini asm:
+ * -- FILTER (?3g = "No"^^xsdasm:boolean) [Kalau mau filter "No"]
+ * -- FILTER (?3g = "Yes"^^xsdasm:boolean) [Kalau mau filter "Yes"]
  * Yang di pass ke function di bawah itu "Yes" dan "No" jadinya
  */
 
 @Service
 public class PhoneDataService {
 
-    public static final String directoryString = "http://localhost:3030/test/";
+    public static final String serviceURL = "httpasm://localhostasm:3030/NAME/";
 
-//    public static void main(String[] args) throws FileNotFoundException {
-//        CallQuery(TurnToQuery("Phone", "Apple", "3000", null, null, "90000", null, null, null, null, null));
-//    }
+    public static void main(String[] args) {
+//        CallQuery("select distinct ?p where {?s ?p ?o} limit 100");
+        PhoneData phoneData = new PhoneData();
+        phoneData.setHas4g("Yes");
+        phoneData.setHasWifi("Yes");
+        CallQuery(TurnToQuery(phoneData));
+    }
 
     public static String TurnToQuery(PhoneData phoneData) {
-
-        /*
-        String name, String brand, String minRAM, String maxRAM, String os,
-                                     String priceMax, String priceMin,
-                                     String storageMin, String storageMax, String hasWifi, String has4g
-        * */
 
         String additionalCond = MakeAdditionalCond(phoneData);
 
         String hasSpec = String.join("",
-                "<http://anti-semanticism.cat/hasCamera> [ <http://anti-semanticism.cat/hasFrontCamera> ?front_cam ; <http://anti-semanticism.cat/hasRearCamera> ?back_cam ] ;",
-                "<http://anti-semanticism.cat/hasBattery> [",
-                "<http://anti-semanticism.cat/amount> ?bat_amount ;",
-                "<http://anti-semanticism.cat/unit> ?bat_unit ] ;",
-                "<http://anti-semanticism.cat/hasNetworking> [",
-                "<http://anti-semanticism.cat/has3G> ?3g ;",
-                "<http://anti-semanticism.cat/has4G> ?4g ;",
-                "<http://anti-semanticism.cat/hasBluetooth> ?bluetooth ;",
-                "<http://anti-semanticism.cat/hasGPS> ?gps ;",
-                "<http://anti-semanticism.cat/hasSimsCard> ?sim ;",
-                "<http://anti-semanticism.cat/hasWifi> ?wifi ; ] ;",
-                "<http://anti-semanticism.cat/hasOS> ?os ;",
-                "<http://anti-semanticism.cat/hasRAM> [ <http://anti-semanticism.cat/amount> ?ram_amount ; <http://anti-semanticism.cat/unit> ?ram_unit ] ;",
-                "<http://anti-semanticism.cat/processorAmount> ?proc ;",
-                "<http://anti-semanticism.cat/hasStorage> [ <http://anti-semanticism.cat/amount> ?strg_amount ; <http://anti-semanticism.cat/unit> ?strg_unit ] ;");
+                "asm:hasCamera[ asm:hasFrontCamera ?front_cam ; asm:hasRearCamera ?back_cam ] ;",
+                "asm:hasBattery [",
+                "asm:amount ?bat_amount ;",
+                "asm:unit ?bat_unit ] ;",
+                "asm:hasNetworking [",
+                "asm:has3G ?3g ;",
+                "asm:has4G ?4g ;",
+                "asm:hasBluetooth ?bluetooth ;",
+                "asm:hasGPS ?gps ;",
+                "asm:hasSimsCard ?sim ;",
+                "asm:hasWifi ?wifi ; ] ;",
+                "asm:hasOS ?os ;",
+                "asm:hasRAM [ asm:amount ?ram_amount ; asm:unit ?ram_unit ] ;",
+                "asm:processorAmount ?proc ;",
+                "asm:hasStorage [ asm:amount ?strg_amount ; asm:unit ?strg_unit ] ;");
 
         String ret = String.join("",
                 "SELECT DISTINCT * WHERE {",
-                "?s <http://anti-semanticism.cat/hasSpecification> [", hasSpec, "] ;",
-                "<http://anti-semanticism.cat/name> ?name ;",
-                "<http://anti-semanticism.cat/phoneName> ?phone_name ;",
-                "<http://anti-semanticism.cat/price> [ <http://anti-semanticism.cat/amount> ?price] ;",
-                "<http://anti-semanticism.cat/brand> ?brand .",
-                "?brand <http://anti-semanticism.cat/name> ?brand_name .",
+                "?s asm:hasSpecification [", hasSpec, "] ;",
+                "asm:name ?name ;",
+                "asm:phoneName ?phone_name ;",
+                "asm:price [ asm:amount ?price] ;",
+                "asm:brand ?brand .",
+                "?brand asm:name ?brand_name .",
                 additionalCond,
                 "} LIMIT 10");
 
@@ -73,7 +70,7 @@ public class PhoneDataService {
                 "strg_amount", "strg_unit" };
         HashMap<String, RDFNode> varMap = new HashMap<String, RDFNode>();
 
-        try (RDFConnection conn = RDFConnection.connect(directoryString)) {
+        try (RDFConnection conn = RDFConnection.connect(serviceURL)) {
             conn.querySelect(
                     q,
                     (qs) -> {
@@ -81,13 +78,13 @@ public class PhoneDataService {
                             varMap.put(var, qs.get(var));
                         }
                         for (String key : varMap.keySet()) {
-                            System.out.println(key + ": " + varMap.get(key));
+                            System.out.println(key + "asm: " + varMap.get(key));
                         }
                     });
         }
     }
 
-    // FILTER (?3g = "No"^^xsd:boolean)
+    // FILTER (?3g = "No"^^xsdasm:boolean)
     private static String MakeAdditionalCond(PhoneData phoneData) {
 
         String

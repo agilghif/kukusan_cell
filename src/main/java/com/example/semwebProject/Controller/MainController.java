@@ -24,11 +24,11 @@ public class MainController {
         return "Hello World";
     }
 
-    @GetMapping(value="/query")
-    String query(@RequestBody PhoneDataDTO phoneDataDTO) {
-
-        // Convert DTO to entity
-
-
-    }
+//    @GetMapping(value="/query")
+//    String query(@RequestBody PhoneDataDTO phoneDataDTO) {
+//
+//        // Convert DTO to entity
+//
+//
+//    }
 }
