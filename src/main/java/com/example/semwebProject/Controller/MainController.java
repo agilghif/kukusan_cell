@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 public class MainController {
 
     @Autowired
@@ -29,7 +30,7 @@ public class MainController {
         return "Hello World";
     }
 
-    @GetMapping(value="/query")
+    @PostMapping(value="/query")
     ResponseEntity<List<HashMap<String, String>>> query(@RequestBody PhoneDataDTO phoneDataDTO) {
         PhoneData phoneData = modelMapper.map(phoneDataDTO, PhoneData.class);
         try {
